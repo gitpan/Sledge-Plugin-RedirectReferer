@@ -3,7 +3,7 @@ package Sledge::Plugin::RedirectReferer;
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub import {
     my $self = shift;
@@ -19,6 +19,14 @@ sub import {
         }
     };
 }
+
+=head1 NAME
+
+Sledge::Plugin::RedirectReferer - referer redirect plugin for Sledge
+
+=head1 VERSION
+
+This documentation refers to Sledge::Plugin::RedirectReferer version 0.02
 
 =head1 SYNOPSIS
 
