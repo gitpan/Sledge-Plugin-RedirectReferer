@@ -1,9 +1,9 @@
 package Sledge::Plugin::RedirectReferer;
-
-use warnings;
 use strict;
+use warnings;
+use URI;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub import {
     my $self = shift;
@@ -13,7 +13,12 @@ sub import {
     *{"$pkg\::redirect_referer"} = sub {
         my ($self , $url) = @_;
         if ( $self->r->header_in('Referer') ) {
-            return $self->redirect($self->r->header_in('Referer'));
+            my $uri = URI->new($self->r->header_in('Referer'));
+            if ( $uri->host eq $self->r->hostname ) {
+                return $self->redirect($uri->path_query);
+            } else {
+                return $self->redirect($uri->as_string);
+            }
         } else {
             return $self->redirect($url);
         }
@@ -26,7 +31,7 @@ Sledge::Plugin::RedirectReferer - referer redirect plugin for Sledge
 
 =head1 VERSION
 
-This documentation refers to Sledge::Plugin::RedirectReferer version 0.02
+This documentation refers to Sledge::Plugin::RedirectReferer version 0.03
 
 =head1 SYNOPSIS
 

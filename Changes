@@ -1,6 +1,9 @@
 Revision history for Sledge-Plugin-RedirectReferer
 
-0.01    2006-07-05
+0.03    2006-07-27
+        fix : use URI. At referer url is your host, hostname is removed.
+
+0.02    2006-07-05
         fix : pod. orz...
 
 0.01    2006-07-05
