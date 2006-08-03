@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use URI;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
+our $LAST_URL_KEY = '_last_url';
 
 sub import {
     my $self = shift;
@@ -12,8 +13,10 @@ sub import {
     no strict 'refs';
     *{"$pkg\::redirect_referer"} = sub {
         my ($self , $url) = @_;
-        if ( $self->r->header_in('Referer') ) {
-            my $uri = URI->new($self->r->header_in('Referer'));
+        my $redirect_url = $self->session->param( $LAST_URL_KEY ) ? $self->session->param( $LAST_URL_KEY )
+                                                                  : $self->r->header_in('Referer');
+        if ( $redirect_url ) {
+            my $uri = URI->new($redirect_url);
             if ( $uri->host eq $self->r->hostname ) {
                 return $self->redirect($uri->path_query);
             } else {
@@ -23,6 +26,19 @@ sub import {
             return $self->redirect($url);
         }
     };
+
+    *{"$pkg\::last_access_url"} = sub {
+        shift->session->param( $LAST_URL_KEY );
+    };
+
+    $pkg->register_hook(
+        AFTER_OUTPUT => \&store_url,
+    );
+}
+
+sub store_url {
+    my $self = shift;
+    $self->session->param( $LAST_URL_KEY => $self->current_url );
 }
 
 =head1 NAME
@@ -31,7 +47,7 @@ Sledge::Plugin::RedirectReferer - referer redirect plugin for Sledge
 
 =head1 VERSION
 
-This documentation refers to Sledge::Plugin::RedirectReferer version 0.03
+This documentation refers to Sledge::Plugin::RedirectReferer version 0.04
 
 =head1 SYNOPSIS
 
@@ -48,6 +64,10 @@ This documentation refers to Sledge::Plugin::RedirectReferer version 0.03
 =head2 redirect_referer
 
     This method redirect referer.
+
+=head2 last_access_url
+
+    This method get your last access url.
 
 =head1 AUTHOR
 
@@ -100,4 +120,5 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of Sledge::Plugin::RedirectReferer
+1
+# End of Sledge::Plugin::RedirectReferer
